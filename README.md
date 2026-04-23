@@ -6,13 +6,13 @@
 
 <br />
 
-## 🎯 About the Project
+## About the Project
 
 **VulnHunt** is an interactive, browser-based cybersecurity training game. Disguised as a retro Linux terminal, it challenges players to spot critical security flaws—like SQL Injections, Cross-Site Scripting (XSS), and Broken Authentication—hidden within real-world code snippets across various languages (JavaScript, Python, Java, PHP, etc.).
 
 For every vulnerability verified, players earn XP, build streaks, and receive detailed explanations and secure patch solutions for the analyzed threats. 
 
-## ✨ Features
+## Features
 
 - **Terminal Aesthetic**: Clean, dark-mode UI with mono-spaced typography, subtle glowing effects, and command-line interactions.
 - **Multi-Vector Analysis**: Challenges cover the OWASP Top 10 (Injection, Sensitive Data Exposure, Misconfigurations, etc.).
@@ -20,14 +20,14 @@ For every vulnerability verified, players earn XP, build streaks, and receive de
 - **Hint System**: Stuck on a module? Decrypt a hint at the cost of valuable timer seconds.
 - **Post-Game Reports**: Get a detailed mastery breakdown of your performance by category, complete with actionable advice for improvement.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: [React 18](https://react.dev/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **Styling**: Native inline styles (Zero external CSS dependencies!)
 
-## 🚀 Getting Started
+## Getting Started
 
 To get a local copy up and running, follow these simple steps.
 
@@ -55,14 +55,14 @@ To get a local copy up and running, follow these simple steps.
    ```
 5. Open your browser and navigate to `http://localhost:5173`.
 
-## 📁 Project Structure
+## Project Structure
 
 * `src/screens/` - Contains the main views: `IntroScreen`, `QuestionScreen`, and `ProfileScreen`.
 * `src/components/` - Reusable UI elements like the Rank Avatar.
 * `src/data/questions.ts` - The core database of vulnerabilities and code challenges.
 * `src/App.tsx` - The main controller handling game state, routing, and scoring logic.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
 
@@ -71,7 +71,7 @@ If you have a great idea for a new code vulnerability question:
 2. Add your scenario to `src/data/questions.ts`.
 3. Open a Pull Request.
 
-## 📜 License
+## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
