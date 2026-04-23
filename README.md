@@ -76,7 +76,3 @@ If you have a great idea for a new code vulnerability question:
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-
-<div align="center">
-  <i>> AWAITING_OPERATOR_CONFIG...</i>
-</div>
