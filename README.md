@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+<div align="center">
+  <h1>🕵️‍♂️ VulnHunt</h1>
+  <p><strong>A Gamified, Terminal-Themed Code Security Challenge</strong></p>
+  <p>Level up your cybersecurity IQ by identifying vulnerabilities in multi-vector code snippets.</p>
+</div>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<br />
 
-Currently, two official plugins are available:
+## 🎯 About the Project
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**VulnHunt** is an interactive, browser-based cybersecurity training game. Disguised as a retro Linux terminal, it challenges players to spot critical security flaws—like SQL Injections, Cross-Site Scripting (XSS), and Broken Authentication—hidden within real-world code snippets across various languages (JavaScript, Python, Java, PHP, etc.).
 
-## React Compiler
+For every vulnerability verified, players earn XP, build streaks, and receive detailed explanations and secure patch solutions for the analyzed threats. 
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+- **Terminal Aesthetic**: Clean, dark-mode UI with mono-spaced typography, subtle glowing effects, and command-line interactions.
+- **Multi-Vector Analysis**: Challenges cover the OWASP Top 10 (Injection, Sensitive Data Exposure, Misconfigurations, etc.).
+- **Dynamic Gameplay**: Questions are randomized, and options are shuffled on every playthrough to ensure replayability.
+- **Hint System**: Stuck on a module? Decrypt a hint at the cost of valuable timer seconds.
+- **Post-Game Reports**: Get a detailed mastery breakdown of your performance by category, complete with actionable advice for improvement.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Framework**: [React 18](https://react.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: Native inline styles (Zero external CSS dependencies!)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+To get a local copy up and running, follow these simple steps.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Prerequisites
+* Node.js (v16 or higher)
+* npm or yarn
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Installation
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/vulnhunt.git
+   ```
+2. Navigate into the project directory:
+   ```sh
+   cd vulnhunt
+   ```
+3. Install NPM packages:
+   ```sh
+   npm install
+   ```
+4. Start the development server:
+   ```sh
+   npm run dev
+   ```
+5. Open your browser and navigate to `http://localhost:5173`.
+
+## 📁 Project Structure
+
+* `src/screens/` - Contains the main views: `IntroScreen`, `QuestionScreen`, and `ProfileScreen`.
+* `src/components/` - Reusable UI elements like the Rank Avatar.
+* `src/data/questions.ts` - The core database of vulnerabilities and code challenges.
+* `src/App.tsx` - The main controller handling game state, routing, and scoring logic.
+
+## 🤝 Contributing
+
+Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
+
+If you have a great idea for a new code vulnerability question:
+1. Fork the Project.
+2. Add your scenario to `src/data/questions.ts`.
+3. Open a Pull Request.
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+  <i>> AWAITING_OPERATOR_CONFIG...</i>
+</div>
