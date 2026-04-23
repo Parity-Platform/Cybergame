@@ -1,0 +1,104 @@
+// src/screens/ProfileScreen.tsx
+// src/screens/ProfileScreen.tsx
+import type { CategoryStats } from "../types";
+import { getRank, Avatar } from "../components/Visuals";
+
+interface ProfileScreenProps {
+  totalXP: number;
+  answers: boolean[];
+  maxPossibleXP: number;
+  categoryStats: CategoryStats;
+  onRestart: () => void;
+}
+
+export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categoryStats, onRestart }: ProfileScreenProps) {
+  const total = answers.length;
+  const correct = answers.filter(Boolean).length;
+  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+  
+  const rank = getRank(accuracy);
+
+  const getSuggestion = (cat: string, pct: number) => {
+    if (pct >= 80) return "Mastery achieved. Keep monitoring for zero-days.";
+    if (cat === "Injection") return "Review OWASP parameterized queries & ORM safety.";
+    if (cat === "Sensitive Data Exposure") return "Study secrets management (Vault, AWS KMS) & env vars.";
+    if (cat === "Broken Authentication") return "Implement MFA and strict password policies (Argon2/Bcrypt).";
+    if (cat === "Cross-Site Scripting (XSS)") return "Sanitize inputs and use strict Content Security Policies.";
+    if (cat === "Security Misconfiguration") return "Audit cloud buckets, disable debug modes in production.";
+    return "Review OWASP Top 10 guidelines for this vector.";
+  };
+
+  return (
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "20px 16px", animation: "fadeUp 0.6s ease", fontFamily: "monospace" }}>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div style={{ fontSize: 12, color: "#4ade80", letterSpacing: 3, marginBottom: 8, fontWeight: 600 }}>
+          cat /var/log/vulnhunt_report.log
+        </div>
+        <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.5rem)", margin: 0, color: rank.color, fontWeight: 800, letterSpacing: 2, fontFamily: "monospace", textTransform: "uppercase", textShadow: `0 0 15px ${rank.color}66` }}>
+          {rank.emoji} STATUS: {rank.title}
+        </h1>
+        <p style={{ fontSize: 14, color: "#a3a3a3", marginTop: 8 }}>{rank.desc}</p>
+      </div>
+
+      <div style={{ background: "#0a0a0a", border: `1px solid ${rank.color}`, borderRadius: 8, padding: 32, marginBottom: 32, boxShadow: `0 0 20px ${rank.color}22` }}>
+        <div style={{ display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ filter: "drop-shadow(0 0 8px currentColor)", color: rank.color }}><Avatar rank={rank} score={accuracy} /></div>
+          
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              {[
+                { label: "TOTAL_XP", val: totalXP },
+                { label: "MAX_POTENTIAL", val: maxPossibleXP },
+                { label: "ACCURACY", val: `${accuracy}%` },
+                { label: "THREATS_NEUTRALIZED", val: `${correct}/${total}` },
+              ].map((s, idx) => (
+                <div key={s.label} style={{ background: "#050505", borderRadius: 8, padding: "16px", border: `1px solid ${rank.color}44`, animation: "fadeUp 0.4s ease forwards", opacity: 0, animationDelay: `${0.2 + idx * 0.1}s` }}>
+                  <div style={{ fontSize: 22, color: rank.color, fontWeight: 800, textShadow: `0 0 10px ${rank.color}66` }}>{s.val}</div>
+                  <div style={{ fontSize: 10, color: "#a3a3a3", letterSpacing: 1, marginTop: 4, fontWeight: 600 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#0a0a0a", border: "1px solid #333", borderRadius: 8, padding: 24, marginBottom: 32 }}>
+        <div style={{ fontSize: 12, color: "#4ade80", letterSpacing: 2, marginBottom: 24, fontWeight: 600 }}>
+          ./vector_analysis.sh --category-mastery
+        </div>
+        <div style={{ display: "grid", gap: 16 }}>
+          {Object.entries(categoryStats).map(([cat, stats], idx) => {
+            const catPct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            const barColor = catPct >= 75 ? "#4ade80" : catPct >= 40 ? "#fbbf24" : "#f87171";
+            
+            return (
+              <div key={cat} style={{ display: "flex", flexDirection: "column", gap: 6, animation: "fadeUp 0.4s ease forwards", opacity: 0, animationDelay: `${0.5 + idx * 0.1}s` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#e2e8f0", fontWeight: 600 }}>
+                  <span>{cat.toUpperCase()}</span>
+                  <span style={{ color: barColor, textShadow: `0 0 5px ${barColor}66` }}>{stats.correct}/{stats.total} ({catPct}%)</span>
+                </div>
+                <div style={{ height: 8, background: "#111", borderRadius: 4, overflow: "hidden", border: "1px solid #333" }}>
+                  <div style={{ width: `${catPct}%`, height: "100%", background: barColor, transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)", boxShadow: `0 0 10px ${barColor}` }} />
+                </div>
+                <div style={{ fontSize: 10, color: "#a3a3a3", marginTop: 4, fontStyle: "italic" }}>
+                  &gt; {getSuggestion(cat, catPct)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", animation: "fadeUp 0.4s ease forwards", opacity: 0, animationDelay: "1s" }}>
+        <button
+          onClick={onRestart}
+          style={{ fontSize: 14, fontWeight: 800, letterSpacing: 2, padding: "16px 40px", background: "#000", border: "1px solid #22d3ee", color: "#22d3ee", borderRadius: 8, cursor: "pointer", transition: "all 0.2s", textTransform: "uppercase" }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#22d3ee"; e.currentTarget.style.color = "#000"; e.currentTarget.style.boxShadow = "0 0 15px #22d3ee"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "#000"; e.currentTarget.style.color = "#22d3ee"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
+        >
+          ./REBOOT_SYSTEM.sh
+        </button>
+      </div>
+    </div>
+  );
+}
