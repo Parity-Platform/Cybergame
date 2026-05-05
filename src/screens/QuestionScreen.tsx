@@ -329,9 +329,10 @@ export default function QuestionScreen() {
             </pre>
           )}
           <div style={{ marginTop: 24, textAlign: "right" }}>
-            <button onClick={handleProceed} className="btn-primary">
-              ./PROCEED.sh
-            </button>
+            // [DEV NOTE]: Exw duo koumpia gia proceed. H logiki gia next module/profile einai idi sto handleProceed kai handleNext sto context, opote to button auto den exei kritiki leitourgia pros to paron.
+            {/* <button onClick={handleProceed} className="btn-primary">
+              ./NEXT_MODULE.sh
+            </button> */}
           </div>
         </div>
       )}
