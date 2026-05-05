@@ -35,7 +35,7 @@ export function Avatar({ rank }: AvatarProps) {
     <svg viewBox="0 0 90 110" width="160" height="180" style={{ filter: `drop-shadow(0 4px 6px rgba(0,0,0,0.05))` }}>
       <ellipse cx="45" cy="108" rx="28" ry="6" fill="#E2E8F0" opacity="0.8" />
       <rect x="22" y="72" width="46" height="32" rx="10" fill={expr.color1} />
-      <text x="45" y="93" textAnchor="middle" fontSize="7" fill="#0F172A" fontFamily="monospace" opacity="0.8" fontWeight="bold">&lt;/sec&gt;</text>
+      <text x="45" y="93" textAnchor="middle" fontSize="7" fill="#0F172A" fontFamily="var(--font-mono)" opacity="0.8" fontWeight="bold">&lt;/sec&gt;</text>
       <rect x="38" y="67" width="14" height="10" fill="#EAD4AA" />
       <ellipse cx="45" cy="48" rx="26" ry="28" fill="#FDE68A" />
       {rank.title === "Elite Hacker" ? (

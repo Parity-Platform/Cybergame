@@ -1,17 +1,15 @@
 // src/screens/ProfileScreen.tsx
 // src/screens/ProfileScreen.tsx
-import type { CategoryStats } from "../types";
 import { getRank, Avatar } from "../components/Visuals";
+import { useNavigate } from "react-router-dom";
+import { useGameState } from "../context/GameStateContext";
 
-interface ProfileScreenProps {
-  totalXP: number;
-  answers: boolean[];
-  maxPossibleXP: number;
-  categoryStats: CategoryStats;
-  onRestart: () => void;
-}
+export default function ProfileScreen() {
+  const { totalXP, answers, maxPossibleXP, categoryStats } = useGameState();
+  const navigate = useNavigate();
+  const onRestart = () => navigate("/intro");
+  const onHome = () => navigate("/");
 
-export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categoryStats, onRestart }: ProfileScreenProps) {
   const total = answers.length;
   const correct = answers.filter(Boolean).length;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -29,18 +27,28 @@ export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categor
   };
 
   return (
-    <div style={{ maxWidth: 860, margin: "0 auto", padding: "20px 16px", animation: "fadeUp 0.6s ease", fontFamily: "monospace" }}>
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <div style={{ fontSize: 12, color: "#4ade80", letterSpacing: 3, marginBottom: 8, fontWeight: 600 }}>
-          cat /var/log/vulnhunt_report.log
-        </div>
-        <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.5rem)", margin: 0, color: rank.color, fontWeight: 800, letterSpacing: 2, fontFamily: "monospace", textTransform: "uppercase", textShadow: `0 0 15px ${rank.color}66` }}>
-          {rank.emoji} STATUS: {rank.title}
-        </h1>
-        <p style={{ fontSize: 14, color: "#a3a3a3", marginTop: 8 }}>{rank.desc}</p>
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "20px 16px", animation: "fadeUp 0.6s ease" }}>
+      
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 24 }}>
+        <button 
+          onClick={onHome}
+          className="btn-ghost"
+        >
+          &lt; cd /landingpage
+        </button>
       </div>
 
-      <div style={{ background: "#0a0a0a", border: `1px solid ${rank.color}`, borderRadius: 8, padding: 32, marginBottom: 32, boxShadow: `0 0 20px ${rank.color}22` }}>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div className="text-label" style={{ letterSpacing: 3, marginBottom: 8 }}>
+          cat /var/log/vulnhunt_report.log
+        </div>
+        <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.5rem)", margin: 0, color: rank.color, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase", textShadow: `0 0 15px ${rank.color}66` }}>
+          <span style={{ color: rank.color, marginRight: 8 }}>{rank.emoji}</span>STATUS: {rank.title}
+        </h1>
+        <p className="text-subtitle" style={{ marginTop: 8 }}>{rank.desc}</p>
+      </div>
+
+      <div className="terminal-window" style={{ borderColor: rank.color, padding: 32, marginBottom: 32, boxShadow: `0 0 20px ${rank.color}22` }}>
         <div style={{ display: "flex", gap: 32, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
           <div style={{ filter: "drop-shadow(0 0 8px currentColor)", color: rank.color }}><Avatar rank={rank} score={accuracy} /></div>
           
@@ -52,7 +60,7 @@ export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categor
                 { label: "ACCURACY", val: `${accuracy}%` },
                 { label: "THREATS_NEUTRALIZED", val: `${correct}/${total}` },
               ].map((s, idx) => (
-                <div key={s.label} style={{ background: "#050505", borderRadius: 8, padding: "16px", border: `1px solid ${rank.color}44`, animation: "fadeUp 0.4s ease forwards", opacity: 0, animationDelay: `${0.2 + idx * 0.1}s` }}>
+                <div key={s.label} style={{ background: "#050505", borderRadius: 8, padding: "16px", border: `1px solid ${rank.color}44`, opacity: 0, animation: "fadeUp 0.4s ease forwards", animationDelay: `${0.2 + idx * 0.1}s` }}>
                   <div style={{ fontSize: 22, color: rank.color, fontWeight: 800, textShadow: `0 0 10px ${rank.color}66` }}>{s.val}</div>
                   <div style={{ fontSize: 10, color: "#a3a3a3", letterSpacing: 1, marginTop: 4, fontWeight: 600 }}>{s.label}</div>
                 </div>
@@ -62,8 +70,8 @@ export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categor
         </div>
       </div>
 
-      <div style={{ background: "#0a0a0a", border: "1px solid #333", borderRadius: 8, padding: 24, marginBottom: 32 }}>
-        <div style={{ fontSize: 12, color: "#4ade80", letterSpacing: 2, marginBottom: 24, fontWeight: 600 }}>
+      <div className="terminal-window" style={{ borderColor: "#333", marginBottom: 32, boxShadow: "none" }}>
+        <div className="text-label" style={{ letterSpacing: 2, marginBottom: 24 }}>
           ./vector_analysis.sh --category-mastery
         </div>
         <div style={{ display: "grid", gap: 16 }}>
@@ -72,7 +80,7 @@ export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categor
             const barColor = catPct >= 75 ? "#4ade80" : catPct >= 40 ? "#fbbf24" : "#f87171";
             
             return (
-              <div key={cat} style={{ display: "flex", flexDirection: "column", gap: 6, animation: "fadeUp 0.4s ease forwards", opacity: 0, animationDelay: `${0.5 + idx * 0.1}s` }}>
+              <div key={cat} style={{ display: "flex", flexDirection: "column", gap: 6, opacity: 0, animation: "fadeUp 0.4s ease forwards", animationDelay: `${0.5 + idx * 0.1}s` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#e2e8f0", fontWeight: 600 }}>
                   <span>{cat.toUpperCase()}</span>
                   <span style={{ color: barColor, textShadow: `0 0 5px ${barColor}66` }}>{stats.correct}/{stats.total} ({catPct}%)</span>
@@ -89,12 +97,11 @@ export default function ProfileScreen({ totalXP, answers, maxPossibleXP, categor
         </div>
       </div>
 
-      <div style={{ textAlign: "center", animation: "fadeUp 0.4s ease forwards", opacity: 0, animationDelay: "1s" }}>
+      <div style={{ textAlign: "center", opacity: 0, animation: "fadeUp 0.4s ease forwards", animationDelay: "1s" }}>
         <button
           onClick={onRestart}
-          style={{ fontSize: 14, fontWeight: 800, letterSpacing: 2, padding: "16px 40px", background: "#000", border: "1px solid #22d3ee", color: "#22d3ee", borderRadius: 8, cursor: "pointer", transition: "all 0.2s", textTransform: "uppercase" }}
-          onMouseEnter={e => { e.currentTarget.style.background = "#22d3ee"; e.currentTarget.style.color = "#000"; e.currentTarget.style.boxShadow = "0 0 15px #22d3ee"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "#000"; e.currentTarget.style.color = "#22d3ee"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
+          className="btn-primary"
+          style={{ padding: "16px 40px", letterSpacing: 2, textTransform: "uppercase", maxWidth: "max-content" }}
         >
           ./REBOOT_SYSTEM.sh
         </button>
