@@ -10,7 +10,9 @@ export default function LandingScreen() {
   const navigate = useNavigate();
   const [headerText, setHeaderText] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [hoveredBtn, setHoveredBtn] = useState<"login" | "register" | null>(null);
 
+  // Terminal typing animation effect for the prompt string
   useEffect(() => {
     const fullText = isAuthenticated ? "root@vulnhunt:~#" : "guest@vulnhunt:~$";
     setHeaderText("");
@@ -23,12 +25,14 @@ export default function LandingScreen() {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // Handles toggling between different game modules (Cybersecurity vs IT Support)
   const handleSwitch = (tab: "cyber" | "it") => {
     setActiveTab(tab);
     setErrorMsg(null);
     setGameMode(tab);
   };
 
+  // Proceeds to the intro screen if the correct module is active
   const handlePlay = () => {
     if (activeTab === "cyber") {
       navigate("/intro");
@@ -75,10 +79,20 @@ export default function LandingScreen() {
             {/* ACTIONS */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}>
               <div style={{ display: "flex", gap: 16, width: "100%", justifyContent: "center" }}>
-                <button onClick={() => { setAuthType("login"); navigate("/auth"); }} style={{ flex: 1, maxWidth: 200, padding: "14px 24px", background: "#0a0a0a", border: "1px solid #333", color: "#e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.color = "var(--primary)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "#333"; e.currentTarget.style.color = "#e2e8f0"; }}>
+                <button 
+                  onClick={() => { setAuthType("login"); navigate("/auth"); }} 
+                  onMouseEnter={() => setHoveredBtn("login")}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                  style={{ flex: 1, maxWidth: 200, padding: "14px 24px", background: "#0a0a0a", border: `1px solid ${hoveredBtn === "login" ? "var(--primary)" : "#333"}`, color: hoveredBtn === "login" ? "var(--primary)" : "#e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, transition: "all 0.2s" }}
+                >
                   LOGIN
                 </button>
-                <button onClick={() => { setAuthType("register"); navigate("/auth"); }} style={{ flex: 1, maxWidth: 200, padding: "14px 24px", background: "#0a0a0a", border: "1px solid #333", color: "#e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.color = "var(--primary)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "#333"; e.currentTarget.style.color = "#e2e8f0"; }}>
+                <button 
+                  onClick={() => { setAuthType("register"); navigate("/auth"); }} 
+                  onMouseEnter={() => setHoveredBtn("register")}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                  style={{ flex: 1, maxWidth: 200, padding: "14px 24px", background: "#0a0a0a", border: `1px solid ${hoveredBtn === "register" ? "var(--primary)" : "#333"}`, color: hoveredBtn === "register" ? "var(--primary)" : "#e2e8f0", borderRadius: 8, cursor: "pointer", fontWeight: 600, transition: "all 0.2s" }}
+                >
                   REGISTER
                 </button>
               </div>
@@ -156,6 +170,7 @@ export default function LandingScreen() {
               <button onClick={handlePlay} className="btn-primary">
                 ./START_MODULE.sh
               </button>
+              {/* Allows the user to explicitly log out by updating global auth state */}
               <button onClick={() => setIsAuthenticated(false)} className="btn-ghost" style={{ textDecoration: "underline", fontSize: 12 }}>
                 Log out
               </button>

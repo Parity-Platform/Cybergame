@@ -4,14 +4,18 @@ import { useNavigate } from "react-router-dom";
 import { useGameState } from "../context/GameStateContext";
 
 export default function QuestionScreen() {
-  const { activeQuestions, qIndex, totalXP: currentXP, streak, handleAnswer: onAnswer, answered } = useGameState();
+  const { activeQuestions, qIndex, totalXP: currentXP, streak, handleAnswer: onAnswer, answered, handleNext } = useGameState();
   const navigate = useNavigate();
   const question = activeQuestions[qIndex];
   const total = activeQuestions.length;
   const onAbort = () => navigate("/");
 
+  if (!question) return null;
+
+  // Dynamic maximum time based on difficulty and reading length
   const maxTime = question.timeLimit + 60; // Give 60 additional seconds dynamically
 
+  // Retrieve existing local state or initialize randomly shuffled options and timer
   const [initialQState] = useState(() => {
     const savedStr = localStorage.getItem('vulnhunt_qstate');
     if (savedStr) {
@@ -40,15 +44,49 @@ export default function QuestionScreen() {
   const [showFix, setShowFix] = useState<boolean>(initialQState.showFix);
   const [timeLeft, setTimeLeft] = useState<number>(initialQState.timeLeft);
   const [earned, setEarned] = useState<number>(initialQState.earned);
-  const [shuffledOptions] = useState<{text: string, originalIndex: number}[]>(initialQState.shuffledOptions);
+  const [shuffledOptions, setShuffledOptions] = useState<{text: string, originalIndex: number}[]>(initialQState.shuffledOptions);
   const [showHint, setShowHint] = useState<boolean>(initialQState.showHint);
+  const [hoveredOption, setHoveredOption] = useState<number | null>(null);
   const [displayedQuestion, setDisplayedQuestion] = useState("");
   const endTimeRef = useRef<number>(Date.now() + initialQState.timeLeft * 1000);
 
+  // Reset local state when moving to the next question
+  useEffect(() => {
+    const savedStr = localStorage.getItem('vulnhunt_qstate');
+    let parsed = null;
+    if (savedStr) {
+      try { parsed = JSON.parse(savedStr); } catch {}
+    }
+    
+    if (parsed && parsed.qIndex === qIndex) {
+      setSelected(parsed.selected);
+      setShowFix(parsed.showFix);
+      setTimeLeft(parsed.timeLeft);
+      setEarned(parsed.earned);
+      setShuffledOptions(parsed.shuffledOptions);
+      setShowHint(parsed.showHint);
+    } else {
+      const optionsWithIndices = question.options.map((text, idx) => ({ text, originalIndex: idx }));
+      for (let i = optionsWithIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [optionsWithIndices[i], optionsWithIndices[j]] = [optionsWithIndices[j], optionsWithIndices[i]];
+      }
+      setSelected(null);
+      setShowFix(false);
+      setTimeLeft(maxTime);
+      setEarned(0);
+      setShuffledOptions(optionsWithIndices);
+      setShowHint(false);
+      endTimeRef.current = Date.now() + maxTime * 1000;
+    }
+  }, [qIndex, question, maxTime]);
+
+  // Persist current question state to local storage when meaningful changes occur
   useEffect(() => {
     localStorage.setItem('vulnhunt_qstate', JSON.stringify({ qIndex, selected, showFix, timeLeft, earned, shuffledOptions, showHint }));
   }, [qIndex, selected, showFix, timeLeft, earned, shuffledOptions, showHint]);
 
+  // Terminal typing animation for the vulnerability question text
   useEffect(() => {
     let currentIndex = 0;
     setDisplayedQuestion("");
@@ -65,6 +103,7 @@ export default function QuestionScreen() {
     return () => clearInterval(interval);
   }, [question.question]);
 
+  // Count down remaining time using a real-time interval approach
   useEffect(() => {
     if (answered) return;
     const timer = setInterval(() => {
@@ -78,6 +117,7 @@ export default function QuestionScreen() {
     return () => clearInterval(timer);
   }, [answered]);
 
+  // Evaluates selected answer, calculates speed bonus, and propagates result to game state
   const handleSelect = (idx: number, isTimeout = false) => {
     if (selected !== null || answered) return;
     
@@ -99,6 +139,8 @@ export default function QuestionScreen() {
     onAnswer(isCorrect, xp, question.category);
   };
 
+  // Unlocks the question hint with a time penalty
+  // [FUTURE DEV]: The hint system is currently disabled but the logic remains for future updates
   const handleHint = () => {
     if (showHint) return;
     setShowHint(true);
@@ -106,19 +148,35 @@ export default function QuestionScreen() {
     setTimeLeft(prev => Math.max(1, prev - 10)); // Deduct 10 seconds for the hint
   };
 
-  const optColors = (idx: number) => {
-    if (selected === null && !answered) return { bg: "#000000", border: "var(--primary-dim)", color: "var(--primary)", font: "#a3a3a3" };
+  // Evaluates next step and signals router to load next module or profile
+  const handleProceed = () => {
+    localStorage.removeItem('vulnhunt_qstate');
+    const isGameOver = handleNext();
+    if (isGameOver) {
+      navigate("/profile");
+    }
+  };
+
+  // Computes the visual styling of each option button based on selection & hover state
+  const optColors = (idx: number, isHovered: boolean) => {
+    if (selected === null && !answered) {
+      return isHovered 
+        ? { bg: "#111", border: "var(--primary)", color: "var(--primary)", font: "#a3a3a3", transform: "translateY(-1px)" }
+        : { bg: "#000000", border: "var(--primary-dim)", color: "var(--primary)", font: "#a3a3a3", transform: "translateY(0)" };
+    }
     
     const isThisCorrect = shuffledOptions[idx].originalIndex === question.correct;
 
-    if (isThisCorrect && answered) return { bg: "var(--primary-bg)", border: "var(--primary)", color: "var(--primary)", font: "var(--primary)" };
-    if (idx === selected) return { bg: "#450a0a", border: "#f87171", color: "#f87171", font: "#f87171" };
+    if (isThisCorrect && answered) return { bg: "var(--primary-bg)", border: "var(--primary)", color: "var(--primary)", font: "var(--primary)", transform: "translateY(0)" };
+    if (idx === selected) return { bg: "#450a0a", border: "#f87171", color: "#f87171", font: "#f87171", transform: "translateY(0)" };
     
-    return { bg: "#050505", border: "var(--primary-dim)", color: "var(--primary-dim)", font: "#525252" };
+    return { bg: "#050505", border: "var(--primary-dim)", color: "var(--primary-dim)", font: "#525252", transform: "translateY(0)" };
   };
 
+  // Update timer text color to warn the player when time is running out
   const timerColor = timeLeft <= 10 ? "#f87171" : timeLeft <= maxTime / 2 ? "#fbbf24" : "var(--primary)";
 
+  // Generate contextual feedback message depending on correctness
   const getReactionMessage = () => {
     if (selected === -1) return "Execution Timeout.";
     if (earned > 130) return "Optimal Solution (+Speed Bonus)";
@@ -204,36 +262,38 @@ export default function QuestionScreen() {
         <span style={{ color: "var(--primary)", marginLeft: 4 }}>{displayedQuestion.length < question.question.length ? "█" : "_"}</span>
       </p>
 
-      {/* HINT SYSTEM */}
-      {!answered && (question as any).hint && (
+      {/* HINT SYSTEM - [FUTURE DEV]: Temporarily hidden to avoid issues. Uncomment to re-enable */}
+      {/*
+      {!answered && question.hint && (
         <div style={{ marginBottom: 24, opacity: 0, animation: "fadeUp 0.6s ease forwards", animationDelay: "0.4s" }}>
           <button
             onClick={handleHint}
             disabled={showHint}
             style={{ background: showHint ? "var(--primary-bg)" : "#000", border: `1px dashed ${showHint ? "var(--primary)" : "#fbbf24"}`, color: showHint ? "var(--primary)" : "#fbbf24", padding: "8px 12px", fontSize: 12, cursor: showHint ? "default" : "pointer", borderRadius: 8, transition: "all 0.2s" }}
           >
-            {showHint ? `[!] HINT: ${(question as any).hint}` : "./DECRYPT_HINT.sh --cost 10s"}
+            {showHint ? `[!] HINT: ${question.hint}` : "./DECRYPT_HINT.sh --cost 10s"}
           </button>
         </div>
       )}
+      */}
 
       <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
         {shuffledOptions.map((opt, idx) => {
-          const c = optColors(idx);
+          const c = optColors(idx, hoveredOption === idx);
           return (
             <button
               key={idx}
               onClick={() => handleSelect(idx)}
               disabled={answered}
+              onMouseEnter={() => !answered && setHoveredOption(idx)}
+              onMouseLeave={() => !answered && setHoveredOption(null)}
               style={{
                 background: c.bg, border: `1px solid ${c.border}`, borderRadius: 8, padding: "16px 20px",
                 color: c.font, fontSize: 14, textAlign: "left", fontWeight: 600,
-                cursor: answered ? "default" : "pointer", display: "flex", gap: 12, transition: "all 0.2s",
+                cursor: answered ? "default" : "pointer", display: "flex", gap: 12, transition: "all 0.2s", transform: c.transform,
                 boxShadow: answered && idx === selected ? `0 0 15px ${c.border}44` : "none",
                 opacity: 0, animation: "fadeUp 0.4s ease forwards", animationDelay: `${0.4 + (idx * 0.1)}s`
               }}
-            onMouseEnter={e => { if (!answered) { e.currentTarget.style.background = "#111"; e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.transform = "translateY(-1px)"; } }}
-              onMouseLeave={e => { if (!answered) { e.currentTarget.style.background = c.bg; e.currentTarget.style.borderColor = c.border; e.currentTarget.style.transform = "translateY(0)"; } }}
             >
               <span style={{ color: c.color, width: 24 }}>[{String.fromCharCode(65 + idx)}]</span>
               <span>{opt.text}</span>
@@ -268,6 +328,11 @@ export default function QuestionScreen() {
               {question.fix}
             </pre>
           )}
+          <div style={{ marginTop: 24, textAlign: "right" }}>
+            <button onClick={handleProceed} className="btn-primary">
+              ./PROCEED.sh
+            </button>
+          </div>
         </div>
       )}
     </div>

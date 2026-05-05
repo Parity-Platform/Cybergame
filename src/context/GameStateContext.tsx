@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { QUESTIONS } from "../data/questions";
 import type { Category, Question, CategoryStats } from "../types";
 
@@ -24,18 +24,24 @@ interface GameState {
 
 const GameStateContext = createContext<GameState | null>(null);
 
+// Helper to safely load game state from local storage
 const getInitialState = () => {
   const saved = localStorage.getItem("vulnhunt_state");
   if (saved) {
     try {
       return JSON.parse(saved);
-    } catch {}
+    } catch (error) {
+      console.error("[GameStateContext] Failed to parse game state from local storage:", error);
+    }
   }
   return {};
 };
 
+// Provider component that manages and supplies the global game state to the application
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
   const initialState = getInitialState();
+
+  // Core game state variables
   const [gameMode, setGameMode] = useState<"cyber" | "it">(initialState.gameMode ?? "cyber");
   const [authType, setAuthType] = useState<"login" | "register">("login");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initialState.isAuthenticated ?? false);
@@ -47,6 +53,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   const [streak, setStreak] = useState<number>(initialState.streak ?? 0);
   const [categoryStats, setCategoryStats] = useState<CategoryStats>(initialState.categoryStats ?? {});
 
+  // Automatically save state to local storage periodically to prevent data loss
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const stateToSave = { gameMode, activeQuestions, qIndex, totalXP, answers, answered, streak, categoryStats, isAuthenticated };
@@ -55,6 +62,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     return () => clearTimeout(timeoutId);
   }, [gameMode, activeQuestions, qIndex, totalXP, answers, answered, streak, categoryStats, isAuthenticated]);
 
+  // Initializes a new game session with 10 random questions from selected categories
   const handleStart = (selectedCategories: Category[]) => {
     let filtered = QUESTIONS.filter(q => selectedCategories.includes(q.category));
     filtered = filtered.sort(() => 0.5 - Math.random()).slice(0, 10);
@@ -72,6 +80,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     localStorage.removeItem("vulnhunt_qstate");
   };
 
+  // Processes a user's answer, updates their XP, streak, and tracks category statistics
   const handleAnswer = (isCorrect: boolean, xp: number, category: string) => {
     setAnswers(prev => [...prev, isCorrect]);
     setTotalXP(prev => prev + xp);
@@ -87,6 +96,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     setAnswered(true);
   };
 
+  // Advances the game to the next question, or signals the end of the quiz
   const handleNext = () => {
     if (qIndex + 1 >= activeQuestions.length) {
       return true;
@@ -97,7 +107,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     }
   };
 
-  const maxPossibleXP = activeQuestions.reduce((acc, q) => acc + 150, 0); 
+  // Memoize max possible XP to avoid recalculating on every render unless activeQuestions changes
+  const maxPossibleXP = useMemo(() => activeQuestions.reduce((acc, q) => acc + 150, 0), [activeQuestions]);
 
   return (
     <GameStateContext.Provider value={{ gameMode, setGameMode, authType, setAuthType, isAuthenticated, setIsAuthenticated, activeQuestions, qIndex, totalXP, answers, answered, streak, categoryStats, handleStart, handleAnswer, handleNext, maxPossibleXP }}>
@@ -106,6 +117,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   );
 };
 
+// Custom hook to easily consume the GameStateContext
 export const useGameState = () => {
   const context = useContext(GameStateContext);
   if (!context) throw new Error("useGameState must be used within GameStateProvider");

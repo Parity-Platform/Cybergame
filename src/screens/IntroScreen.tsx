@@ -12,18 +12,21 @@ export default function IntroScreen() {
   const [headerText, setHeaderText] = useState("");
   const [bootStep, setBootStep] = useState(0);
 
+  // Toggle a specific category filter on/off
   const toggleCat = (cat: Category) => {
     setSelectedCats(prev => 
       prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   };
 
+  // Start the quiz with the chosen categories, or all categories if none are selected
   const handleInit = () => {
     const finalCats = selectedCats.length > 0 ? selectedCats : CATEGORIES;
     handleStart(finalCats);
     navigate("/quiz");
   };
 
+  // Animated typing effect for the header
   useEffect(() => {
     const fullText = "root@VULNHUNT:~#";
     let i = 0;
@@ -36,6 +39,7 @@ export default function IntroScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  // Step-by-step terminal boot animation sequence
   useEffect(() => {
     let step = 0;
     const interval = setInterval(() => {

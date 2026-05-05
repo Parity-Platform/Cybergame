@@ -15,7 +15,9 @@ export default function AuthScreen() {
   const [cmdText, setCmdText] = useState("");
   const [bootStep, setBootStep] = useState(0); // 0 = typing cmd, 1 = executing, 2 = form
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
+  // Handles the pseudo-terminal boot sequence and typing animation
   useEffect(() => {
     setBootStep(0);
     setCmdText("");
@@ -38,6 +40,7 @@ export default function AuthScreen() {
     };
   }, [mode]);
 
+  // Processes the login/registration form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -52,7 +55,7 @@ export default function AuthScreen() {
       console.log(`Registering ${username} (${email})...`);
     }
     
-    // Simulate authentication
+    // Simulate authentication process and navigate back to the main route
     setIsAuthenticated(true);
     navigate("/");
   };
@@ -148,8 +151,9 @@ export default function AuthScreen() {
               <button 
                 type="submit" 
                 className="btn-primary animate-fade-up-fast"
-                style={{ marginTop: 16, padding: "12px", opacity: 0, animationDelay: mode === "register" ? "0.5s" : "0.3s", background: "transparent" }} 
-                onMouseEnter={e => { e.currentTarget.style.background = "var(--primary)"; e.currentTarget.style.color = "#000"; e.currentTarget.style.boxShadow = "0 0 10px var(--primary-glow)"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--primary)"; e.currentTarget.style.boxShadow = "none"; }}
+                style={{ marginTop: 16, padding: "12px", opacity: 0, animationDelay: mode === "register" ? "0.5s" : "0.3s", transition: "all 0.2s", background: isHovered ? "var(--primary)" : "transparent", color: isHovered ? "#000" : "var(--primary)", boxShadow: isHovered ? "0 0 10px var(--primary-glow)" : "none" }} 
+                onMouseEnter={() => setIsHovered(true)} 
+                onMouseLeave={() => setIsHovered(false)}
               >
                 [ EXECUTE ]
               </button>

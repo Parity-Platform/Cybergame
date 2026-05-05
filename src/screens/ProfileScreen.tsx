@@ -10,12 +10,15 @@ export default function ProfileScreen() {
   const onRestart = () => navigate("/intro");
   const onHome = () => navigate("/");
 
+  // Compute global accuracy statistics
   const total = answers.length;
   const correct = answers.filter(Boolean).length;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
   
+  // Retrieve visual rank mapping based on accuracy
   const rank = getRank(accuracy);
 
+  // Generates specific tips based on user's performance in different categories
   const getSuggestion = (cat: string, pct: number) => {
     if (pct >= 80) return "Mastery achieved. Keep monitoring for zero-days.";
     if (cat === "Injection") return "Review OWASP parameterized queries & ORM safety.";
@@ -75,6 +78,7 @@ export default function ProfileScreen() {
           ./vector_analysis.sh --category-mastery
         </div>
         <div style={{ display: "grid", gap: 16 }}>
+          {/* Render progress bars and suggestions for each assessed category */}
           {Object.entries(categoryStats).map(([cat, stats], idx) => {
             const catPct = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
             const barColor = catPct >= 75 ? "#4ade80" : catPct >= 40 ? "#fbbf24" : "#f87171";
