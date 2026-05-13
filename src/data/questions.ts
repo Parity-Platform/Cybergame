@@ -550,8 +550,8 @@ app.post('/verify', (req, res) => {
     timeLimit: 60,
     diffColor: "#F97316",
     code: `// src/services/ai.js — compiled into the public JS bundle
-const AI_API_KEY  = 'sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz';
-const STRIPE_KEY  = 'sk_live_xGt9Kp2vQm8nRz4wY7uL1aBC';
+const AI_API_KEY  = 'sk-proj-AbCdEfGhIjKlMnOpQrStUvLxYz';
+const STRIPE_KEY  = 'sk_live_xGt9Kp2vQm8nRz4wY7uW1aBC';
 
 export async function generateSummary(text) {
   return fetch('https://api.openai.com/v1/chat/completions', {
