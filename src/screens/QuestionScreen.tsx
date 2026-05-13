@@ -1,6 +1,8 @@
+"use client";
+
 // src/screens/QuestionScreen.tsx
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "../game/nav";
 import { useGameState } from "../context/GameStateContext";
 
 export default function QuestionScreen() {
@@ -17,7 +19,7 @@ export default function QuestionScreen() {
 
   // Retrieve existing local state or initialize randomly shuffled options and timer
   const [initialQState] = useState(() => {
-    const savedStr = localStorage.getItem('vulnhunt_qstate');
+    const savedStr = typeof window !== "undefined" ? window.localStorage.getItem('vulnhunt_qstate') : null;
     if (savedStr) {
       try {
         const parsed = JSON.parse(savedStr);
@@ -52,7 +54,7 @@ export default function QuestionScreen() {
 
   // Reset local state when moving to the next question
   useEffect(() => {
-    const savedStr = localStorage.getItem('vulnhunt_qstate');
+    const savedStr = typeof window !== "undefined" ? window.localStorage.getItem('vulnhunt_qstate') : null;
     let parsed = null;
     if (savedStr) {
       try { parsed = JSON.parse(savedStr); } catch {}
@@ -83,7 +85,7 @@ export default function QuestionScreen() {
 
   // Persist current question state to local storage when meaningful changes occur
   useEffect(() => {
-    localStorage.setItem('vulnhunt_qstate', JSON.stringify({ qIndex, selected, showFix, timeLeft, earned, shuffledOptions, showHint }));
+    if (typeof window !== "undefined") window.localStorage.setItem('vulnhunt_qstate', JSON.stringify({ qIndex, selected, showFix, timeLeft, earned, shuffledOptions, showHint }));
   }, [qIndex, selected, showFix, timeLeft, earned, shuffledOptions, showHint]);
 
   // Terminal typing animation for the vulnerability question text
@@ -150,7 +152,7 @@ export default function QuestionScreen() {
 
   // Evaluates next step and signals router to load next module or profile
   const handleProceed = () => {
-    localStorage.removeItem('vulnhunt_qstate');
+    if (typeof window !== "undefined") window.localStorage.removeItem('vulnhunt_qstate');
     const isGameOver = handleNext();
     if (isGameOver) {
       navigate("/profile");

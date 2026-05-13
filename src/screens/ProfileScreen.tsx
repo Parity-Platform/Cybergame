@@ -1,7 +1,8 @@
-// src/screens/ProfileScreen.tsx
+"use client";
+
 // src/screens/ProfileScreen.tsx
 import { getRank, Avatar } from "../components/Visuals";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "../game/nav";
 import { useGameState } from "../context/GameStateContext";
 
 export default function ProfileScreen() {

@@ -1,78 +1,49 @@
-<div align="center">
-  <h1>🕵️‍♂️ VulnHunt</h1>
-  <p><strong>A Gamified, Terminal-Themed Code Security Challenge</strong></p>
-  <p>Level up your cybersecurity IQ by identifying vulnerabilities in multi-vector code snippets.</p>
-</div>
+# EV Loader Arcade
 
-<br />
+Cybersecurity training games behind a Stripe paywall.
+Stack: Next.js 15 (App Router) + Supabase (auth + DB) + Stripe (subscriptions) + Tailwind. Hosted on Vercel.
 
-## About the Project
+## Routes
 
-**VulnHunt** is an interactive, browser-based cybersecurity training game. Disguised as a retro Linux terminal, it challenges players to spot critical security flaws—like SQL Injections, Cross-Site Scripting (XSS), and Broken Authentication—hidden within real-world code snippets across various languages (JavaScript, Python, Java, PHP, etc.).
+- `/` landing + pricing + FAQ
+- `/login`, `/signup` auth
+- `/account` profile + subscription management (Stripe Customer Portal)
+- `/gallery` protected game grid
+- `/play/[slug]` protected game runtime (currently `vulnhunt`)
+- `/api/stripe/checkout` create Checkout Session
+- `/api/stripe/portal` open Customer Portal
+- `/api/stripe/webhook` Stripe events -> Supabase
 
-For every vulnerability verified, players earn XP, build streaks, and receive detailed explanations and secure patch solutions for the analyzed threats. 
+Auth + active subscription enforced in `src/middleware.ts`.
 
-## Features
+## Setup
 
-- **Terminal Aesthetic**: Clean, dark-mode UI with mono-spaced typography, subtle glowing effects, and command-line interactions.
-- **Multi-Vector Analysis**: Challenges cover the OWASP Top 10 (Injection, Sensitive Data Exposure, Misconfigurations, etc.).
-- **Dynamic Gameplay**: Questions are randomized, and options are shuffled on every playthrough to ensure replayability.
-- **Hint System**: Stuck on a module? Decrypt a hint at the cost of valuable timer seconds.
-- **Post-Game Reports**: Get a detailed mastery breakdown of your performance by category, complete with actionable advice for improvement.
+```
+npm install
+cp .env.example .env.local
+# fill in Supabase + Stripe values
+npm run dev
+```
 
-## Tech Stack
+### Supabase
 
-- **Framework**: [React 18](https://react.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Styling**: Native inline styles (Zero external CSS dependencies!)
+1. Create project at supabase.com
+2. Paste `supabase/schema.sql` into SQL editor and run
+3. Auth -> Providers -> enable Email
+4. Copy URL + anon key + service role key into `.env.local`
 
-## Getting Started
+### Stripe
 
-To get a local copy up and running, follow these simple steps.
+1. Create three Products with monthly Prices (Starter / Pro / Team) and copy each price ID into the matching `STRIPE_PRICE_*` env var
+2. `stripe listen --forward-to localhost:3000/api/stripe/webhook` for local testing; copy signing secret into `STRIPE_WEBHOOK_SECRET`
+3. In production, add the same webhook endpoint via Stripe Dashboard
 
-### Prerequisites
-* Node.js (v16 or higher)
-* npm or yarn
+### Vercel
 
-### Installation
+Push to GitHub, import in Vercel, add all env vars from `.env.example`. Set `NEXT_PUBLIC_APP_URL` to the deployed URL.
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/vulnhunt.git
-   ```
-2. Navigate into the project directory:
-   ```sh
-   cd vulnhunt
-   ```
-3. Install NPM packages:
-   ```sh
-   npm install
-   ```
-4. Start the development server:
-   ```sh
-   npm run dev
-   ```
-5. Open your browser and navigate to `http://localhost:5173`.
+## Adding a new game
 
-## Project Structure
-
-* `src/screens/` - Contains the main views: `IntroScreen`, `QuestionScreen`, and `ProfileScreen`.
-* `src/components/` - Reusable UI elements like the Rank Avatar.
-* `src/data/questions.ts` - The core database of vulnerabilities and code challenges.
-* `src/App.tsx` - The main controller handling game state, routing, and scoring logic.
-
-## Contributing
-
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
-
-If you have a great idea for a new code vulnerability question:
-1. Fork the Project.
-2. Add your scenario to `src/data/questions.ts`.
-3. Open a Pull Request.
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
+1. Append a tile to `src/lib/games.ts` (`status: "live"` once playable)
+2. Add a runtime renderer in `src/app/(app)/play/[slug]/page.tsx`
+3. The middleware already gates `/play/*` behind auth + subscription

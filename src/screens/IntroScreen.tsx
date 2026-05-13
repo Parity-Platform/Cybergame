@@ -1,8 +1,10 @@
+"use client";
+
 // src/screens/IntroScreen.tsx
 import { useState, useEffect } from "react";
 import type { Category } from "../types";
 import { CATEGORIES } from "../data/questions";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "../game/nav";
 import { useGameState } from "../context/GameStateContext";
 
 export default function IntroScreen() {

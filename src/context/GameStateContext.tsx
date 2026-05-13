@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { QUESTIONS } from "../data/questions";
 import type { Category, Question, CategoryStats } from "../types";
@@ -26,7 +28,8 @@ const GameStateContext = createContext<GameState | null>(null);
 
 // Helper to safely load game state from local storage
 const getInitialState = () => {
-  const saved = localStorage.getItem("vulnhunt_state");
+  if (typeof window === "undefined") return {};
+  const saved = window.localStorage.getItem("vulnhunt_state");
   if (saved) {
     try {
       return JSON.parse(saved);
@@ -57,7 +60,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const stateToSave = { gameMode, activeQuestions, qIndex, totalXP, answers, answered, streak, categoryStats, isAuthenticated };
-      localStorage.setItem("vulnhunt_state", JSON.stringify(stateToSave));
+      if (typeof window !== "undefined") window.localStorage.setItem("vulnhunt_state", JSON.stringify(stateToSave));
     }, 1000);
     return () => clearTimeout(timeoutId);
   }, [gameMode, activeQuestions, qIndex, totalXP, answers, answered, streak, categoryStats, isAuthenticated]);
@@ -77,7 +80,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     setAnswers([]);
     setStreak(0);
     setAnswered(false);
-    localStorage.removeItem("vulnhunt_qstate");
+    if (typeof window !== "undefined") window.localStorage.removeItem("vulnhunt_qstate");
   };
 
   // Processes a user's answer, updates their XP, streak, and tracks category statistics
